@@ -34,6 +34,13 @@
       "Tests\\": "tests/"
     }
   },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Raethub\\NewRelic\\Providers\\NewRelicServiceProvider"
+      ]
+    }
+  },
   "scripts": {
     "cs": "./vendor/bin/phpcs",
     "cbf": "./vendor/bin/phpcbf"
