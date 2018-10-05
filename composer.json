@@ -37,7 +37,7 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Ratehub\\NewRelic\\Providers\\NewRelicServiceProvider"
+        "RateHub\\NewRelic\\Providers\\NewRelicServiceProvider"
       ]
     }
   },
