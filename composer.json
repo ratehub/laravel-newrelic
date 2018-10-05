@@ -1,0 +1,41 @@
+{
+  "name": "ratehub/laravel-newrelic",
+  "description": "A library for new relic tracking",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Lee Robert",
+      "email": "lee.robert@ratehub.ca"
+    }
+  ],
+  "suggest": {
+    "ext-newrelic": "This is what this package is built to use"
+  },
+  "require": {
+    "php": ">=7.1",
+    "illuminate/support": "5.*",
+    "psr/log": "^1.0",
+    "illuminate/log": "^5.7",
+    "illuminate/queue": "^5.7",
+    "illuminate/routing": "^5.7"
+  },
+  "autoload": {
+    "psr-4": {
+      "RateHub\\NewRelic\\": "src/RateHub/NewRelic"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~7.0",
+    "squizlabs/php_codesniffer": "*"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "cs": "./vendor/bin/phpcs",
+    "cbf": "./vendor/bin/phpcbf"
+  }
+}
