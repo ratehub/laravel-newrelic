@@ -2,7 +2,6 @@
 
 namespace RateHub\NewRelic\Providers;
 
-use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\ServiceProvider;
 use RateHub\NewRelic\Adapters\NullAdapter;
@@ -86,7 +85,7 @@ final class NewRelicServiceProvider extends ServiceProvider
     {
         $app = $this->app;
 
-        $app['queue']->before(function (JobProcessed $event) use ($app) {
+        $app['queue']->before(function ($event) use ($app) {
             $app['newrelic']->backgroundJob(true);
             $app['newrelic']->startTransaction(ini_get('newrelic.appname'));
             if ($app['config']->get('newrelic.auto_name_jobs')) {
@@ -94,7 +93,7 @@ final class NewRelicServiceProvider extends ServiceProvider
             }
         });
 
-        $app['queue']->after(function (JobProcessed $event) use ($app) {
+        $app['queue']->after(function ($event) use ($app) {
             $app['newrelic']->endTransaction();
         });
     }
@@ -130,7 +129,7 @@ final class NewRelicServiceProvider extends ServiceProvider
      *
      * @return string
      */
-    public function getJobName(JobProcessed $event)
+    public function getJobName($event)
     {
         return str_replace(
             [
