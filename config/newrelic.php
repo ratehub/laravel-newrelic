@@ -91,9 +91,9 @@ return [
     |           {class} = The name of the job class
     |       anything that is not a matched token will remain a string literal
     |       example:
-    |           Given a job named App\MyJob, with data {"subject":"hello","to":"world"},
-    |           the pattern 'I say {input} when I run {class}' would return:
-    |           'I say hello, world when I run App\MyJob'
+    |           Given a job named App\MyJob, on the connection "sync"
+    |           the pattern 'I say {connection} when I run {class}' would return:
+    |           'I say sync, world when I run App\MyJob'
     */
 
     'job_name_provider' => env('NEWRELIC_JOB_NAME_PROVIDER', '{class}'),
