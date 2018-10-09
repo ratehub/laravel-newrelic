@@ -135,16 +135,10 @@ final class NewRelicServiceProvider extends ServiceProvider
             [
                 '{connection}',
                 '{class}',
-                '{data}',
-                '{args}',
-                '{input}',
             ],
             [
                 $event->connectionName,
                 get_class($event->job),
-                json_encode($event->data),
-                implode(', ', array_keys($event->data)),
-                implode(', ', array_values($event->data)),
             ],
             $this->app['config']->get('newrelic.job_name_provider')
         );
