@@ -6,6 +6,7 @@ use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\ServiceProvider;
 use RateHub\NewRelic\Adapters\NullAdapter;
+use RateHub\NewRelic\Commands\TestCommand;
 
 const NEW_RELIC_CONFIG_PATH = __DIR__ . '../../../../config/newrelic.php';
 
@@ -36,6 +37,9 @@ final class NewRelicServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(realpath(NEW_RELIC_CONFIG_PATH), 'newrelic');
+        $this->commands([
+            TestCommand::class,
+        ]);
 
         $this->app->singleton(
             'newrelic',
