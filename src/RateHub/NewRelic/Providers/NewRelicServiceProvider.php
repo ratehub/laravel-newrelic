@@ -8,10 +8,10 @@ use Illuminate\Support\ServiceProvider;
 use RateHub\NewRelic\Adapters\NullAdapter;
 use RateHub\NewRelic\Commands\TestCommand;
 
+const NEW_RELIC_CONFIG_PATH = __DIR__ . '/../../../../config/newrelic.php';
+
 final class NewRelicServiceProvider extends ServiceProvider
 {
-    const NEW_RELIC_CONFIG_PATH = __DIR__ . '../../../../config/newrelic.php';
-
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -26,7 +26,7 @@ final class NewRelicServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->publishes([realpath(self::NEW_RELIC_CONFIG_PATH) => config_path('newrelic.php')], 'config');
+        $this->publishes([realpath(NEW_RELIC_CONFIG_PATH) => config_path('newrelic.php')], 'config');
     }
 
     /**
@@ -36,8 +36,7 @@ final class NewRelicServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->mergeConfigFrom(realpath(self::NEW_RELIC_CONFIG_PATH), 'newrelic');
-
+        $this->mergeConfigFrom(realpath(NEW_RELIC_CONFIG_PATH), 'newrelic');
         $this->commands([
             TestCommand::class,
         ]);
