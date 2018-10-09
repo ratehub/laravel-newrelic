@@ -32,6 +32,7 @@ final class TestCommand extends Command
 
     /**
      * Execute the console command.
+     *
      */
     public function handle()
     {

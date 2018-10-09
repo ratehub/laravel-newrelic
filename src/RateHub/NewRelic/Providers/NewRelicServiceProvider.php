@@ -27,6 +27,15 @@ final class NewRelicServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([realpath(NEW_RELIC_CONFIG_PATH) => config_path('newrelic.php')], 'config');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                TestCommand::class,
+            ]);
+        }
+
+        $this->registerNamedTransactions();
+        $this->registerQueueTransactions();
     }
 
     /**
@@ -37,9 +46,6 @@ final class NewRelicServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(realpath(NEW_RELIC_CONFIG_PATH), 'newrelic');
-        $this->commands([
-            TestCommand::class,
-        ]);
 
         $this->app->singleton(
             'newrelic',
@@ -47,9 +53,6 @@ final class NewRelicServiceProvider extends ServiceProvider
                 return new NullAdapter();
             }
         );
-
-        $this->registerNamedTransactions();
-        $this->registerQueueTransactions();
     }
 
     /**
