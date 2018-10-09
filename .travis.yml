@@ -6,6 +6,12 @@ php:
 - 7.2
 - 7.3
 
+# safelist
+branches:
+    only:
+    - master
+    - dev
+
 addons:
 
 cache:
