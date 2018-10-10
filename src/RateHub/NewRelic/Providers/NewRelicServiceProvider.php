@@ -12,6 +12,9 @@ use RateHub\NewRelic\Adapters\NewRelicAgentAdapter;
 use RateHub\NewRelic\Adapters\NullAdapter;
 use RateHub\NewRelic\Commands\TestCommand;
 use RateHub\NewRelic\Contracts\Adapters\Adapter;
+use RateHub\NewRelic\Contracts\Exceptions\ExceptionFilter;
+use RateHub\NewRelic\Exceptions\AggregateExceptionFilter;
+use RateHub\NewRelic\Exceptions\BlacklistExceptionFilter;
 
 const NEW_RELIC_CONFIG_PATH = __DIR__ . '/../../../../config/newrelic.php';
 
@@ -60,36 +63,8 @@ final class NewRelicServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(realpath(NEW_RELIC_CONFIG_PATH), 'newrelic');
 
-        $app = $this->app;
-
-        /** @var Repository $config */
-        $config = $app->make('config');
-
-        switch ($config->get('newrelic.adapter')) {
-            case 'null':
-                $app->bind(Adapter::class, NullAdapter::class);
-                break;
-
-            case 'newrelic':
-                $throwWhenMissing = config('newrelic.throw_when_missing', true);
-
-                if (!extension_loaded('newrelic') && $throwWhenMissing) {
-                    throw new \Exception('New Relic PHP Agent is missing.');
-                }
-
-                $app->bind(Adapter::class, NewRelicAgentAdapter::class);
-                break;
-
-            case 'log':
-                $app->bind(Adapter::class, LogAdapter::class, true);
-                $app
-                    ->when(LogAdapter::class)
-                    ->needs(LoggerInterface::class)
-                    ->give(function () use ($app, $config) {
-                        return $app->make(LogManager::class)->channel($config->get('newrelic.adapters.log.channel'));
-                    });
-                break;
-        }
+        $this->registerAdapter();
+        $this->registerExceptionFilters();
     }
 
     /**
@@ -101,13 +76,16 @@ final class NewRelicServiceProvider extends ServiceProvider
     {
         return [
             Adapter::class,
+            AggregateExceptionFilter::class,
+            BlacklistExceptionFilter::class,
+            ExceptionFilter::class,
         ];
     }
 
     /**
      * Registers the named transactions with the NewRelic PHP agent
      */
-    protected function registerNamedTransactions()
+    private function registerNamedTransactions()
     {
         $app = $this->app;
 
@@ -121,7 +99,7 @@ final class NewRelicServiceProvider extends ServiceProvider
     /**
      * Registers the queue transactions with the NewRelic PHP agent
      */
-    protected function registerQueueTransactions()
+    private function registerQueueTransactions()
     {
         $app = $this->app;
 
@@ -138,12 +116,66 @@ final class NewRelicServiceProvider extends ServiceProvider
         });
     }
 
+    private function registerAdapter()
+    {
+        /** @var Repository $config */
+        $config = $this->app->make('config');
+
+        switch ($config->get('newrelic.adapter')) {
+            case 'null':
+                $this->app->bind(Adapter::class, NullAdapter::class);
+                break;
+
+            case 'newrelic':
+                $throwWhenMissing = config('newrelic.throw_when_missing', true);
+
+                if (!extension_loaded('newrelic') && $throwWhenMissing) {
+                    throw new \Exception('New Relic PHP Agent is missing.');
+                }
+
+                $this->app->bind(Adapter::class, NewRelicAgentAdapter::class);
+                break;
+
+            case 'log':
+                $this->app->bind(Adapter::class, LogAdapter::class, true);
+                $this->app
+                    ->when(LogAdapter::class)
+                    ->needs(LoggerInterface::class)
+                    ->give(function () use ($config) {
+                        return $this->app->make(LogManager::class)->channel($config->get('newrelic.adapters.log.channel'));
+                    });
+                break;
+        }
+    }
+
+    private function registerExceptionFilters()
+    {
+        $this->app->singleton(BlacklistExceptionFilter::class, function () {
+            /** @var Repository $config */
+            $config = $this->app->make('config');
+
+            return new BlacklistExceptionFilter($config->get('newrelic.filters.blacklist.ignoredExceptions', []));
+        });
+
+        $this->app->singleton(AggregateExceptionFilter::class, function () {
+            /** @var Repository $config */
+            $config = $this->app->make('config');
+
+            $filters = [];
+            foreach ($config->get('newrelic.filters.aggregate.filters', []) as $filterClass) {
+                $filters[] = $this->app->make($filterClass);
+            }
+
+            return new AggregateExceptionFilter($filters);
+        });
+    }
+
     /**
      * Build the transaction name
      *
      * @return string
      */
-    public function getTransactionName()
+    private function getTransactionName()
     {
         return str_replace(
             [
@@ -169,7 +201,7 @@ final class NewRelicServiceProvider extends ServiceProvider
      *
      * @return string
      */
-    public function getJobName($event)
+    private function getJobName($event)
     {
         return str_replace(
             [
@@ -189,7 +221,7 @@ final class NewRelicServiceProvider extends ServiceProvider
      *
      * @return string
      */
-    protected function getMethod()
+    private function getMethod()
     {
         return strtoupper($this->app['router']->getCurrentRequest()->method());
     }
@@ -199,12 +231,12 @@ final class NewRelicServiceProvider extends ServiceProvider
      *
      * @return string
      */
-    protected function getPath()
+    private function getPath()
     {
         return ($this->app['router']->current()->uri() == '' ? '/' : $this->app['router']->current()->uri());
     }
 
-    protected function getUri()
+    private function getUri()
     {
         return $this->app['router']->getCurrentRequest()->path();
     }
@@ -214,7 +246,7 @@ final class NewRelicServiceProvider extends ServiceProvider
      *
      * @return string
      */
-    protected function getController()
+    private function getController()
     {
         $controller = $this->app['router']->current() ? $this->app['router']->current()->getActionName() : 'unknown';
         if ($controller === 'Closure') {
@@ -229,7 +261,7 @@ final class NewRelicServiceProvider extends ServiceProvider
      *
      * @return string
      */
-    protected function getRoute()
+    private function getRoute()
     {
         $name = $this->app['router']->currentRouteName();
         if (!$name) {

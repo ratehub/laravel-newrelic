@@ -18,10 +18,11 @@ return [
     */
 
     'adapter' => env('NEWRELIC_ADAPTER', 'newrelic'),
+
     'adapters' => [
         'log' => [
-            'channel' => 'stack'
-        ]
+            'channel' => 'stack',
+        ],
     ],
 
     'throw_when_missing' => env('NEWRELIC_THROW_IF_NOT_INSTALLED', true),
@@ -111,17 +112,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Logging
+    | Logging - Exceptions
     |--------------------------------------------------------------------------
     |
-    |
+    | Facilities for ignoring exceptions. You can implement the ExceptionFilter interface
+    | if you have special needs such as checking status codes or the presence of request
+    | variables.
     |
     */
-    'exceptionFilter'        => 'blacklist',
-    'filters'                => [
+
+    'exceptionFilter' => 'blacklist',
+    'filters'         => [
         'aggregate' => [
             'filters' => [
-                'blacklist',
+                \RateHub\NewRelic\Exceptions\BlacklistExceptionFilter::class,
             ],
         ],
         'blacklist' => [
@@ -129,7 +133,17 @@ return [
         ],
     ],
 
-    'ignored_fields'     => [
+    /*
+    |--------------------------------------------------------------------------
+    | Logging - Ignored Fields
+    |--------------------------------------------------------------------------
+    |
+    | Doesn't log certain fields. Note that in order to truly ignore these fields
+    | you will also need to set the ini setting newrelic.attributes.exclude
+    |
+    */
+
+    'ignored_fields' => [
         'password',
         'password_confirm',
         'confirm_password',

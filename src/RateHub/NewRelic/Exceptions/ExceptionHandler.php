@@ -4,9 +4,9 @@ namespace RateHub\NewRelic\Exceptions;
 
 use Exception;
 use Illuminate\Contracts\Debug\ExceptionHandler as IExceptionHandler;
-use Illuminate\Support\Arr;
 use RateHub\NewRelic\Adapters\NewRelicAgentAdapter;
 use RateHub\NewRelic\Contracts\DetailProcessors\DetailProcessor;
+use RateHub\NewRelic\Contracts\Exceptions\ExceptionFilter;
 
 final class ExceptionHandler implements IExceptionHandler
 {
@@ -21,19 +21,20 @@ final class ExceptionHandler implements IExceptionHandler
     private $newRelic;
 
     /**
-     * @var ShouldReportException
+     * @var ExceptionFilter
      */
-    protected $shouldReportException;
+    protected $exceptionFilter;
 
-    public function __construct(DetailProcessor $detailProcessor, NewRelicAgentAdapter $newRelic, $ignoredExceptions = [], $ignoredFields = [])
+    public function __construct(DetailProcessor $detailProcessor, NewRelicAgentAdapter $newRelic, ExceptionFilter $exceptionFilter)
     {
         $this->detailProcessor = $detailProcessor;
         $this->newRelic = $newRelic;
+        $this->exceptionFilter = $exceptionFilter;
     }
 
     public function report(Exception $e)
     {
-        if ($this->shouldReport($e)) {
+        if ($this->exceptionFilter->shouldReport($e)) {
             $this->logException($e);
         }
     }
@@ -53,27 +54,15 @@ final class ExceptionHandler implements IExceptionHandler
      * Note: If you want some attributes ignored you have to add them
      * to the ini file under the field newrelic.attributes.exclude
      *
-     * @param Exception $e
+     * @param Exception $exception
      */
-    protected function logException(Exception $e)
+    protected function logException(Exception $exception)
     {
         $logDetails = $this->detailProcessor->__invoke([]);
         foreach ($logDetails as $param => $value) {
             $this->newRelic->addCustomParameter($param, $value);
         }
 
-        $this->newRelic->noticeError($e->getMessage(), $e);
-    }
-
-    protected function shouldReport(Exception $e): bool
-    {
-        return !$this->shouldntReport($e);
-    }
-
-    protected function shouldntReport(Exception $e): bool
-    {
-        return !is_null(Arr::first($this->shouldReportException, function ($type) use ($e) {
-            return $e instanceof $type;
-        }));
+        $this->newRelic->noticeError($exception->getMessage(), $exception);
     }
 }
