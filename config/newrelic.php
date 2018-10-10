@@ -24,7 +24,7 @@ return [
         ]
     ],
 
-    'throw_on_error' => env('NEWRELIC_THROW_IF_NOT_INSTALLED', false),
+    'throw_when_missing' => env('NEWRELIC_THROW_IF_NOT_INSTALLED', true),
 
     'fallback' => env('NEWRELIC_FALLBACK_ADAPTER', 'null'),
 
