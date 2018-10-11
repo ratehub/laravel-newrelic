@@ -66,6 +66,7 @@ final class NewRelicServiceProvider extends ServiceProvider
 
         $this->registerAdapter($this->app->make('config')->get('newrelic.adapter'));
         $this->registerExceptionFilters();
+        $this->registerDetailProcessors();
     }
 
     /**
@@ -123,7 +124,7 @@ final class NewRelicServiceProvider extends ServiceProvider
         $config = $this->app->make('config');
 
         switch ($adapter) {
-            case 'null':
+            case 'nullAdapter':
                 $this->app->bind(Adapter::class, NullAdapter::class);
                 break;
 
@@ -142,14 +143,16 @@ final class NewRelicServiceProvider extends ServiceProvider
 
                 break;
             case 'log':
-                $this->app->bind(Adapter::class, LogAdapter::class, true);
+                $logManager = $this->app->make('log');
+                $this->app->singleton(Adapter::class, LogAdapter::class);
                 $this->app
                     ->when(LogAdapter::class)
                     ->needs(LoggerInterface::class)
-                    ->give(function () use ($config) {
-                        return $this->app->make(LogManager::class)->channel($config->get('newrelic.adapters.log.channel'));
+                    ->give(function () use ($config, $logManager) {
+                        return $logManager->channel($config->get('newrelic.adapters.log.channel'));
                     });
                 break;
+
             default:
                 throw new \Exception('Invalid adapter specified.');
         }

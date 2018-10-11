@@ -9,7 +9,7 @@ return [
     | Mostly used for development/staging servers that don't have new relic and
     | running tests.
     |
-    | One of 'newrelic', 'null', 'log'
+    | One of 'newrelic', 'nullAdapter', 'log'
     |
     | When set to 'newrelic' you need to specify whether or not to throw an
     | exception if the extension is missing. When false we'll use the fallback
@@ -27,7 +27,7 @@ return [
 
     'throwWhenMissing' => env('NEWRELIC_THROW_IF_NOT_INSTALLED', true),
 
-    'fallback' => env('NEWRELIC_FALLBACK_ADAPTER', 'null'),
+    'fallback' => env('NEWRELIC_FALLBACK_ADAPTER', 'nullAdapter'),
 
     /*
     |--------------------------------------------------------------------------
@@ -111,7 +111,8 @@ return [
     */
 
     'exceptionFilter' => 'blacklist',
-    'filters'         => [
+
+    'filters' => [
         'aggregate' => [
             'filters' => [
                 \RateHub\NewRelic\Exceptions\BlacklistExceptionFilter::class,
