@@ -64,7 +64,7 @@ final class NewRelicServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(realpath(NEW_RELIC_CONFIG_PATH), 'newrelic');
 
-        $this->registerAdapter();
+        $this->registerAdapter($this->app->make('config')->get('newrelic.adapter'));
         $this->registerExceptionFilters();
     }
 
