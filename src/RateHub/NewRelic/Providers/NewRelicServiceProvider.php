@@ -4,6 +4,8 @@ namespace RateHub\NewRelic\Providers;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Log\LogManager;
+use Illuminate\Queue\Queue;
+use Illuminate\Queue\QueueManager;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\ServiceProvider;
 use Psr\Log\LoggerInterface;
@@ -16,6 +18,7 @@ use RateHub\NewRelic\Contracts\Exceptions\ExceptionFilter;
 use RateHub\NewRelic\DetailProcessors\StackProcessor;
 use RateHub\NewRelic\Exceptions\AggregateExceptionFilter;
 use RateHub\NewRelic\Exceptions\BlacklistExceptionFilter;
+use RateHub\NewRelic\Exceptions\ExceptionHandler;
 
 const NEW_RELIC_CONFIG_PATH = __DIR__ . '/../../../../config/newrelic.php';
 
@@ -104,17 +107,22 @@ final class NewRelicServiceProvider extends ServiceProvider
     private function registerQueueTransactions()
     {
         $app = $this->app;
-
-        $app['queue']->before(function ($event) use ($app) {
-            $app[Adapter::class]->backgroundJob(true);
-            $app[Adapter::class]->startTransaction(ini_get('newrelic.appname'));
-            if ($app['config']->get('newrelic.autoNameJobs')) {
-                $app[Adapter::class]->nameTransaction($this->getJobName($event));
+        /** @var QueueManager $queueManager */
+        $queueManager = $app->make('queue');
+        $queueManager->before(function ($event) use ($app) {
+            $app->make(Adapter::class)->backgroundJob(true);
+            $app->make(Adapter::class)->startTransaction(ini_get('newrelic.appname'));
+            if ($app->make('config')->get('newrelic.autoNameJobs')) {
+                $app->make(Adapter::class)->nameTransaction($this->getJobName($event));
             }
         });
 
-        $app['queue']->after(function ($event) use ($app) {
-            $app[Adapter::class]->endTransaction();
+        $queueManager->after(function ($event) use ($app) {
+            $app->make(Adapter::class)->endTransaction();
+        });
+
+        $queueManager->failing(function ($event) use ($app) {
+            $app->make(ExceptionHandler::class)->report($event->exception);
         });
     }
 
