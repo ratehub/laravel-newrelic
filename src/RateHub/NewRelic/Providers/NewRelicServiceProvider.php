@@ -69,6 +69,7 @@ final class NewRelicServiceProvider extends ServiceProvider
 
         $this->registerAdapter($this->app->make('config')->get('newrelic.adapter'));
         $this->registerExceptionFilters();
+        $this->registerExceptionHandler();
         $this->registerDetailProcessors();
     }
 
