@@ -25,7 +25,7 @@ return [
         ],
     ],
 
-    'throw_when_missing' => env('NEWRELIC_THROW_IF_NOT_INSTALLED', true),
+    'throwWhenMissing' => env('NEWRELIC_THROW_IF_NOT_INSTALLED', true),
 
     'fallback' => env('NEWRELIC_FALLBACK_ADAPTER', 'null'),
 
@@ -42,7 +42,7 @@ return [
     |
     */
 
-    'auto_name_transactions' => env('NEWRELIC_AUTO_NAME_TRANSACTION', true),
+    'autoNameTransactions' => env('NEWRELIC_AUTO_NAME_TRANSACTION', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -57,7 +57,7 @@ return [
     |
     */
 
-    'auto_name_jobs' => env('NEWRELIC_AUTO_NAME_JOB', true),
+    'autoNameJobs' => env('NEWRELIC_AUTO_NAME_JOB', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -79,7 +79,7 @@ return [
     |
     */
 
-    'name_provider' => env('NEWRELIC_NAME_PROVIDER', '{uri} {route}'),
+    'nameProvider' => env('NEWRELIC_NAME_PROVIDER', '{uri} {route}'),
 
     /*
     |--------------------------------------------------------------------------
@@ -97,18 +97,7 @@ return [
     |           'I say sync, world when I run App\MyJob'
     */
 
-    'job_name_provider' => env('NEWRELIC_JOB_NAME_PROVIDER', '{class}'),
-
-    /*
-    |--------------------------------------------------------------------------
-    | New Relic Agent Missing
-    |--------------------------------------------------------------------------
-    |
-    | True if you'd like an exception to be thrown when New Relic is not found.
-    |
-    */
-
-    'throw_if_not_installed' => env('NEWRELIC_THROW_IF_NOT_INSTALLED', false),
+    'jobNameProvider' => env('NEWRELIC_JOB_NAME_PROVIDER', '{class}'),
 
     /*
     |--------------------------------------------------------------------------
@@ -135,19 +124,30 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Logging - Ignored Fields
+    | Logging - Detail Processors
     |--------------------------------------------------------------------------
     |
-    | Doesn't log certain fields. Note that in order to truly ignore these fields
-    | you will also need to set the ini setting newrelic.attributes.exclude
+    | Extra information or manipulation of logged data.
+    | If you're looking at omitting request attributes you will also need
+    | to set the ini setting newrelic.attributes.exclude in order to properly
+    | ignore things like submitted passwords.
     |
     */
 
-    'ignored_fields' => [
-        'password',
-        'password_confirm',
-        'confirm_password',
-        'new_password',
-        'current_password',
+    'detailProcessor' => \RateHub\NewRelic\DetailProcessors\StackProcessor::class,
+
+    'detailProcessors' => [
+        'stack'         => [
+            'processors' => [
+                \RateHub\NewRelic\DetailProcessors\NullProcessor::class,
+            ],
+        ],
+        'ignoredFields' => [
+            'password',
+            'password_confirm',
+            'confirm_password',
+            'new_password',
+            'current_password',
+        ],
     ],
 ];

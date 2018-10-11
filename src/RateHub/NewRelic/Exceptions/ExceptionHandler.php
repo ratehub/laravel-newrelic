@@ -58,7 +58,7 @@ final class ExceptionHandler implements IExceptionHandler
      */
     protected function logException(Exception $exception)
     {
-        $logDetails = $this->detailProcessor->__invoke([]);
+        $logDetails = $this->detailProcessor->process([]);
         foreach ($logDetails as $param => $value) {
             $this->newRelic->addCustomParameter($param, $value);
         }

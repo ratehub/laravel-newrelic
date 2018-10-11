@@ -13,6 +13,7 @@ use RateHub\NewRelic\Adapters\NullAdapter;
 use RateHub\NewRelic\Commands\TestCommand;
 use RateHub\NewRelic\Contracts\Adapters\Adapter;
 use RateHub\NewRelic\Contracts\Exceptions\ExceptionFilter;
+use RateHub\NewRelic\DetailProcessors\StackProcessor;
 use RateHub\NewRelic\Exceptions\AggregateExceptionFilter;
 use RateHub\NewRelic\Exceptions\BlacklistExceptionFilter;
 
@@ -89,7 +90,7 @@ final class NewRelicServiceProvider extends ServiceProvider
     {
         $app = $this->app;
 
-        if ($app['config']->get('newrelic.auto_name_transactions')) {
+        if ($app['config']->get('newrelic.autoNameTransactions')) {
             $app['events']->listen(RouteMatched::class, function (RouteMatched $routeMatched) use ($app) {
                 $app[Adapter::class]->nameTransaction($this->getTransactionName());
             });
@@ -106,7 +107,7 @@ final class NewRelicServiceProvider extends ServiceProvider
         $app['queue']->before(function ($event) use ($app) {
             $app[Adapter::class]->backgroundJob(true);
             $app[Adapter::class]->startTransaction(ini_get('newrelic.appname'));
-            if ($app['config']->get('newrelic.auto_name_jobs')) {
+            if ($app['config']->get('newrelic.autoNameJobs')) {
                 $app[Adapter::class]->nameTransaction($this->getJobName($event));
             }
         });
@@ -116,26 +117,30 @@ final class NewRelicServiceProvider extends ServiceProvider
         });
     }
 
-    private function registerAdapter()
+    private function registerAdapter(string $adapter)
     {
         /** @var Repository $config */
         $config = $this->app->make('config');
 
-        switch ($config->get('newrelic.adapter')) {
+        switch ($adapter) {
             case 'null':
                 $this->app->bind(Adapter::class, NullAdapter::class);
                 break;
 
             case 'newrelic':
-                $throwWhenMissing = config('newrelic.throw_when_missing', true);
+                $throwWhenMissing = config('newrelic.throwWhenMissing', true);
 
-                if (!extension_loaded('newrelic') && $throwWhenMissing) {
-                    throw new \Exception('New Relic PHP Agent is missing.');
+                if (extension_loaded('newrelic')) {
+                    $this->app->bind(Adapter::class, NewRelicAgentAdapter::class);
+                } else {
+                    if ($throwWhenMissing) {
+                        throw new \Exception('New Relic PHP Agent is missing.');
+                    } else {
+                        return $this->registerAdapter($config->get('newrelic.fallback'));
+                    }
                 }
 
-                $this->app->bind(Adapter::class, NewRelicAgentAdapter::class);
                 break;
-
             case 'log':
                 $this->app->bind(Adapter::class, LogAdapter::class, true);
                 $this->app
@@ -146,6 +151,8 @@ final class NewRelicServiceProvider extends ServiceProvider
                     });
                 break;
         }
+
+        throw new \Exception('Invalid adapter specified.');
     }
 
     private function registerExceptionFilters()
@@ -163,6 +170,21 @@ final class NewRelicServiceProvider extends ServiceProvider
 
             $filters = [];
             foreach ($config->get('newrelic.filters.aggregate.filters', []) as $filterClass) {
+                $filters[] = $this->app->make($filterClass);
+            }
+
+            return new AggregateExceptionFilter($filters);
+        });
+    }
+
+    private function registerDetailProcessors()
+    {
+        $this->app->singleton(StackProcessor::class, function () {
+            /** @var Repository $config */
+            $config = $this->app->make('config');
+
+            $filters = [];
+            foreach ($config->get('newrelic.detailProcessors.stack.processors', []) as $filterClass) {
                 $filters[] = $this->app->make($filterClass);
             }
 
@@ -192,7 +214,7 @@ final class NewRelicServiceProvider extends ServiceProvider
                 $this->getPath(),
                 $this->getUri(),
             ],
-            $this->app['config']->get('newrelic.name_provider')
+            $this->app['config']->get('newrelic.nameProvider')
         );
     }
 
@@ -212,7 +234,7 @@ final class NewRelicServiceProvider extends ServiceProvider
                 $event->connectionName,
                 get_class($event->job),
             ],
-            $this->app['config']->get('newrelic.job_name_provider')
+            $this->app['config']->get('newrelic.jobNameProvider')
         );
     }
 

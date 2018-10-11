@@ -11,5 +11,5 @@ namespace RateHub\NewRelic\Contracts\DetailProcessors;
  */
 interface DetailProcessor
 {
-    public function __invoke(array $details): array;
+    public function process(array $details): array;
 }
