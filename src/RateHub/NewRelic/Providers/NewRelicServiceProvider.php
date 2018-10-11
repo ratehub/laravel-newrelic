@@ -136,7 +136,7 @@ final class NewRelicServiceProvider extends ServiceProvider
                     if ($throwWhenMissing) {
                         throw new \Exception('New Relic PHP Agent is missing.');
                     } else {
-                        return $this->registerAdapter($config->get('newrelic.fallback'));
+                        $this->registerAdapter($config->get('newrelic.fallback'));
                     }
                 }
 
@@ -150,9 +150,9 @@ final class NewRelicServiceProvider extends ServiceProvider
                         return $this->app->make(LogManager::class)->channel($config->get('newrelic.adapters.log.channel'));
                     });
                 break;
+            default:
+                throw new \Exception('Invalid adapter specified.');
         }
-
-        throw new \Exception('Invalid adapter specified.');
     }
 
     private function registerExceptionFilters()
