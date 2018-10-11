@@ -203,6 +203,20 @@ final class NewRelicServiceProvider extends ServiceProvider
         });
     }
 
+    private function registerExceptionHandler()
+    {
+        $this->app->singleton(ExceptionHandler::class, function () {
+            /** @var Repository $config */
+            $config = $this->app->make('config');
+
+            $adapter = $this->app->make(Adapter::class);
+            $detailProcessor = $this->app->make($config->get('newrelic.detailProcessor'));
+            $exceptionFilter = $this->app->make(ExceptionFilter::class);
+
+            return new ExceptionHandler($detailProcessor, $adapter, $exceptionFilter);
+        });
+    }
+
     /**
      * Build the transaction name
      *
