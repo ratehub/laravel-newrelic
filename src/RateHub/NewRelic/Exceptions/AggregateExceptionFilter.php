@@ -38,5 +38,5 @@ final class AggregateExceptionFilter implements ExceptionFilter
         }
 
         return true;
-    }j
+    }
 }
