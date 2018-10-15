@@ -21,7 +21,7 @@ return [
 
     'adapters' => [
         'log' => [
-            'channel' => 'stack',
+            'channel' => env('NEWRELIC_ADAPTER_LOG_CHANNEL', 'stack'),
         ],
     ],
 
@@ -110,7 +110,7 @@ return [
     |
     */
 
-    'exceptionFilter' => 'blacklist',
+    'exceptionFilter' => \RateHub\NewRelic\Exceptions\BlacklistExceptionFilter::class,
 
     'filters' => [
         'aggregate' => [
