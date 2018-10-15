@@ -3,8 +3,6 @@
 namespace RateHub\NewRelic\Providers;
 
 use Illuminate\Contracts\Config\Repository;
-use Illuminate\Log\LogManager;
-use Illuminate\Queue\Queue;
 use Illuminate\Queue\QueueManager;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\ServiceProvider;
@@ -85,6 +83,7 @@ final class NewRelicServiceProvider extends ServiceProvider
             AggregateExceptionFilter::class,
             BlacklistExceptionFilter::class,
             ExceptionFilter::class,
+            ExceptionHandler::class,
         ];
     }
 
@@ -187,6 +186,8 @@ final class NewRelicServiceProvider extends ServiceProvider
 
             return new AggregateExceptionFilter($filters);
         });
+
+        $this->app->singleton(ExceptionFilter::class, $this->app->make('config')->get('newrelic.exceptionFilter', BlacklistExceptionFilter::class));
     }
 
     private function registerDetailProcessors()
@@ -195,12 +196,12 @@ final class NewRelicServiceProvider extends ServiceProvider
             /** @var Repository $config */
             $config = $this->app->make('config');
 
-            $filters = [];
+            $detailProcessors = [];
             foreach ($config->get('newrelic.detailProcessors.stack.processors', []) as $filterClass) {
-                $filters[] = $this->app->make($filterClass);
+                $detailProcessors[] = $this->app->make($filterClass);
             }
 
-            return new AggregateExceptionFilter($filters);
+            return new StackProcessor($detailProcessors);
         });
     }
 
