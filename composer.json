@@ -2,7 +2,7 @@
   "name": "ratehub/laravel-newrelic",
   "description": "A library for new relic tracking",
   "type": "library",
-  "license": "apache2",
+  "license": "Apache-2.0",
   "authors": [
     {
       "name": "Lee Robert",
