@@ -4,6 +4,7 @@ namespace RateHub\NewRelic\Exceptions;
 
 use Exception;
 use Illuminate\Contracts\Debug\ExceptionHandler as IExceptionHandler;
+use Illuminate\Support\Arr;
 use RateHub\NewRelic\Contracts\Adapters\Adapter;
 use RateHub\NewRelic\Contracts\DetailProcessors\DetailProcessor;
 use RateHub\NewRelic\Contracts\Exceptions\ExceptionFilter;
@@ -58,7 +59,7 @@ final class ExceptionHandler implements IExceptionHandler
      */
     protected function logException(Exception $exception)
     {
-        $logDetails = $this->detailProcessor->process([]);
+        $logDetails = Arr::dot($this->detailProcessor->process([]));
         foreach ($logDetails as $param => $value) {
             $this->newRelic->addCustomParameter($param, $value);
         }
