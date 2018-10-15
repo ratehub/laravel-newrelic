@@ -4,7 +4,7 @@ namespace RateHub\NewRelic\Exceptions;
 
 use Exception;
 use Illuminate\Contracts\Debug\ExceptionHandler as IExceptionHandler;
-use RateHub\NewRelic\Adapters\NewRelicAgentAdapter;
+use RateHub\NewRelic\Contracts\Adapters\Adapter;
 use RateHub\NewRelic\Contracts\DetailProcessors\DetailProcessor;
 use RateHub\NewRelic\Contracts\Exceptions\ExceptionFilter;
 
@@ -16,7 +16,7 @@ final class ExceptionHandler implements IExceptionHandler
     private $detailProcessor;
 
     /**
-     * @var NewRelicAgentAdapter
+     * @var Adapter
      */
     private $newRelic;
 
@@ -25,7 +25,7 @@ final class ExceptionHandler implements IExceptionHandler
      */
     protected $exceptionFilter;
 
-    public function __construct(DetailProcessor $detailProcessor, NewRelicAgentAdapter $newRelic, ExceptionFilter $exceptionFilter)
+    public function __construct(DetailProcessor $detailProcessor, Adapter $newRelic, ExceptionFilter $exceptionFilter)
     {
         $this->detailProcessor = $detailProcessor;
         $this->newRelic = $newRelic;
