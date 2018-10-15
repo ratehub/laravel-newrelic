@@ -26,7 +26,7 @@ final class AggregateExceptionFilter implements ExceptionFilter
             }
         }
 
-        $this->exceptionFilters[] = $exceptionFilters;
+        $this->exceptionFilters = $exceptionFilters;
     }
 
     public function shouldReport(\Throwable $exception): bool
@@ -38,5 +38,5 @@ final class AggregateExceptionFilter implements ExceptionFilter
         }
 
         return true;
-    }
+    }j
 }
