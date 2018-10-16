@@ -162,7 +162,7 @@ final class NewRelicServiceProvider extends ServiceProvider
                 break;
 
             default:
-                throw new \Exception('Invalid adapter specified.');
+                throw new \Exception('Invalid adapter "' . $adapter . '" specified.');
         }
     }
 
