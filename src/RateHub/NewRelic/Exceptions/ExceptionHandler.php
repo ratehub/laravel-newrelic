@@ -61,6 +61,10 @@ final class ExceptionHandler implements IExceptionHandler
     {
         $logDetails = Arr::dot($this->detailProcessor->process([]));
         foreach ($logDetails as $param => $value) {
+            if (!is_scalar($value)) {
+                $value = json_encode($value);
+            }
+
             $this->newRelic->addCustomParameter($param, $value);
         }
 
