@@ -40,6 +40,16 @@ final class ExceptionHandler implements IExceptionHandler
         }
     }
 
+    /**
+     * Determine if the exception should be reported.
+     *
+     * @param  \Exception  $e
+     * @return bool
+     */
+    public function shouldReport(Exception $e) {
+        return $this->exceptionFilter->shouldReport($e);
+    }
+
     public function render($request, Exception $e)
     {
         // Nothing to do for New Relic
