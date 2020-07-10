@@ -9,19 +9,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-versions: ['7.1', '7.2']
     steps:
     - name: Action checkout
       uses: actions/checkout@v2
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.2'
-#    - name: Cache dependencies
-#      uses: actions/cache@v2
-#      with:
-#        path: $HOME/.composer/cache
-#        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-#        restore-keys: ${{ runner.os }}-composer-
+        php-version: ${{ matrix.php-versions }}
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: $HOME/.composer/cache
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-composer-
 #    - name: Composer install
 #      run: |
 #        phpenv config-rm xdebug.ini
