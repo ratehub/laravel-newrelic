@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - migrate-gh-actions
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Action checkout
+      uses: actions/checkout@v2
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.2'
+#    - name: Cache dependencies
+#      uses: actions/cache@v2
+#      with:
+#        path: $HOME/.composer/cache
+#        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+#        restore-keys: ${{ runner.os }}-composer-
+#    - name: Composer install
+#      run: |
+#        phpenv config-rm xdebug.ini
+#        composer self-update
+#        composer install --no-interaction --prefer-dist
+#    - name: Run scripts
+#      run: |
+#        vendor/bin/phpunit
+#        vendor/bin/phpcs
+
+
