@@ -19,7 +19,9 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-        tools: phpenv
+        tools: composer, php-config, phpunit, phpenv
+    - name: Install phpenv
+      run: git clone git@github.com:phpenv/phpenv.git ~/.phpenv
     - name: Cache dependencies
       uses: actions/cache@v2
       with:
