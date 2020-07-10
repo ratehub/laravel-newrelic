@@ -20,6 +20,10 @@ jobs:
       with:
         php-version: ${{ matrix.php-versions }}
         tools: composer, php-config, phpunit, phpenv
+    - name: ssh setup
+      uses: webfactory/ssh-agent@v0.1.1
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
     - name: Install phpenv
       run: git clone git@github.com:phpenv/phpenv.git ~/.phpenv
     - name: Cache dependencies
