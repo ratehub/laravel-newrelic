@@ -25,11 +25,11 @@ jobs:
         path: $HOME/.composer/cache
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: ${{ runner.os }}-composer-
-#    - name: Composer install
-#      run: |
-#        phpenv config-rm xdebug.ini
-#        composer self-update
-#        composer install --no-interaction --prefer-dist
+    - name: Composer install
+      run: |
+        phpenv config-rm xdebug.ini
+        composer self-update
+        composer install --no-interaction --prefer-dist
 #    - name: Run scripts
 #      run: |
 #        vendor/bin/phpunit
