@@ -34,9 +34,9 @@ jobs:
       run: |
         composer self-update
         composer install --no-interaction --prefer-dist
-#    - name: Run scripts
-#      run: |
-#        vendor/bin/phpunit
-#        vendor/bin/phpcs
+    - name: Run scripts
+      run: |
+        vendor/bin/phpunit
+        vendor/bin/phpcs
 
 
