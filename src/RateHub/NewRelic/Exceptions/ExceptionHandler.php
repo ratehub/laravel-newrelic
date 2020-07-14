@@ -46,7 +46,8 @@ final class ExceptionHandler implements IExceptionHandler
      * @param  \Exception  $e
      * @return bool
      */
-    public function shouldReport(Exception $e) {
+    public function shouldReport(Exception $e)
+    {
         return $this->exceptionFilter->shouldReport($e);
     }
 
