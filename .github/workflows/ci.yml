@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-versions: ['7.1', '7.2']
+        php-versions: ['7.1', '7.2', '7.4']
     steps:
     - name: Action checkout
       uses: actions/checkout@v2
@@ -19,13 +19,11 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-        tools: composer, php-config, phpunit, phpenv
+        tools: composer, php-config, phpunit
     - name: ssh setup
       uses: webfactory/ssh-agent@v0.1.1
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-    - name: Install phpenv
-      run: git clone git@github.com:phpenv/phpenv.git ~/.phpenv
     - name: Cache dependencies
       uses: actions/cache@v2
       with:
@@ -34,7 +32,6 @@ jobs:
         restore-keys: ${{ runner.os }}-composer-
     - name: Composer install
       run: |
-        phpenv config-rm xdebug.ini
         composer self-update
         composer install --no-interaction --prefer-dist
 #    - name: Run scripts
