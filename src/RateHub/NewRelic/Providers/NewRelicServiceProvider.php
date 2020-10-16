@@ -259,7 +259,7 @@ final class NewRelicServiceProvider extends ServiceProvider
             ],
             [
                 $event->connectionName,
-                get_class($event->job),
+                $event->job->resolveName(),
             ],
             $this->app['config']->get('newrelic.jobNameProvider')
         );
