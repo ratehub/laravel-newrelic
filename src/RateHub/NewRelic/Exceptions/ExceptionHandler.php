@@ -2,7 +2,6 @@
 
 namespace RateHub\NewRelic\Exceptions;
 
-use Exception;
 use Illuminate\Contracts\Debug\ExceptionHandler as IExceptionHandler;
 use Illuminate\Support\Arr;
 use RateHub\NewRelic\Contracts\Adapters\Adapter;
@@ -67,7 +66,7 @@ final class ExceptionHandler implements IExceptionHandler
      * Note: If you want some attributes ignored you have to add them
      * to the ini file under the field newrelic.attributes.exclude
      *
-     * @param \Throwable $exception
+     * @param Throwable $exception
      */
     protected function logException(Throwable $exception)
     {
