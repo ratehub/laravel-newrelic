@@ -2,12 +2,12 @@
 
 namespace RateHub\NewRelic\Exceptions;
 
-use Exception;
 use Illuminate\Contracts\Debug\ExceptionHandler as IExceptionHandler;
 use Illuminate\Support\Arr;
 use RateHub\NewRelic\Contracts\Adapters\Adapter;
 use RateHub\NewRelic\Contracts\DetailProcessors\DetailProcessor;
 use RateHub\NewRelic\Contracts\Exceptions\ExceptionFilter;
+use Throwable;
 
 final class ExceptionHandler implements IExceptionHandler
 {
@@ -33,7 +33,7 @@ final class ExceptionHandler implements IExceptionHandler
         $this->exceptionFilter = $exceptionFilter;
     }
 
-    public function report(Exception $e)
+    public function report(Throwable $e)
     {
         if ($this->exceptionFilter->shouldReport($e)) {
             $this->logException($e);
@@ -43,20 +43,20 @@ final class ExceptionHandler implements IExceptionHandler
     /**
      * Determine if the exception should be reported.
      *
-     * @param  \Exception  $e
+     * @param  \Throwable  $e
      * @return bool
      */
-    public function shouldReport(Exception $e)
+    public function shouldReport(Throwable $e)
     {
         return $this->exceptionFilter->shouldReport($e);
     }
 
-    public function render($request, Exception $e)
+    public function render($request, Throwable $e)
     {
         // Nothing to do for New Relic
     }
 
-    public function renderForConsole($output, Exception $e)
+    public function renderForConsole($output, Throwable $e)
     {
         // Nothing to do for New Relic
     }
@@ -66,9 +66,9 @@ final class ExceptionHandler implements IExceptionHandler
      * Note: If you want some attributes ignored you have to add them
      * to the ini file under the field newrelic.attributes.exclude
      *
-     * @param Exception $exception
+     * @param Throwable $exception
      */
-    protected function logException(Exception $exception)
+    protected function logException(Throwable $exception)
     {
         $logDetails = Arr::dot($this->detailProcessor->process([]));
         foreach ($logDetails as $param => $value) {
