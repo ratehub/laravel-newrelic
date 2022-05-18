@@ -17,6 +17,8 @@ return [
     |
     */
 
+    'appname' => env('NEWRELIC_APPNAME', ini_get('newrelic.appname')),
+
     'adapter' => env('NEWRELIC_ADAPTER', 'newrelic'),
 
     'adapters' => [
