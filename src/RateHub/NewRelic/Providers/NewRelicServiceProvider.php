@@ -111,7 +111,7 @@ final class NewRelicServiceProvider extends ServiceProvider
         $queueManager = $app->make('queue');
         $queueManager->before(function ($event) use ($app) {
             $app->make(Adapter::class)->backgroundJob(true);
-            $app->make(Adapter::class)->startTransaction($app->make('config')->get('newrelic.appname', ini_get('newrelic.appname')));
+            $app->make(Adapter::class)->startTransaction($app->make('config')->get('newrelic.appName'));
             if ($app->make('config')->get('newrelic.autoNameJobs')) {
                 $app->make(Adapter::class)->nameTransaction($this->getJobName($event));
             }
