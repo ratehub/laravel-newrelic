@@ -5,38 +5,42 @@ on:
     branches:
       - migrate-gh-actions
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        php-versions: ['7.1', '7.2', '7.4']
+        php-versions: ['7.1', '7.2', '7.4', '8.2']
+
     steps:
-    - name: Action checkout
-      uses: actions/checkout@v2
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ matrix.php-versions }}
-        tools: composer, php-config, phpunit
-    - name: ssh setup
-      uses: webfactory/ssh-agent@v0.1.1
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-    - name: Cache dependencies
-      uses: actions/cache@v2
-      with:
-        path: $HOME/.composer/cache
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: ${{ runner.os }}-composer-
-    - name: Composer install
-      run: |
-        composer self-update
-        composer install --no-interaction --prefer-dist
-    - name: Run scripts
-      run: |
-        vendor/bin/phpunit
-        vendor/bin/phpcs
+      - name: Action checkout
+        uses: actions/checkout@v2
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          tools: composer, php-config, phpunit
 
+      - name: ssh setup
+        uses: webfactory/ssh-agent@v0.1.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: $HOME/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Composer install
+        run: |
+          composer self-update
+          composer install --no-interaction --prefer-dist
+
+      - name: Run scripts
+        run: |
+          vendor/bin/phpunit
+          vendor/bin/phpcs
