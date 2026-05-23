@@ -23,7 +23,7 @@ final class NewRelicAgentAdapter implements Adapter
         return newrelic_set_appname($applicationName);
     }
 
-    public function noticeError(string $message, \Throwable $throwable = null): void
+    public function noticeError(string $message, ?\Throwable $throwable = null): void
     {
         newrelic_notice_error($message, $throwable);
     }

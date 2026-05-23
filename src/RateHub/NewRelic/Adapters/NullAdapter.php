@@ -11,7 +11,7 @@ final class NullAdapter implements Adapter
         return true;
     }
 
-    public function noticeError(string $message, \Throwable $throwable = null): void
+    public function noticeError(string $message, ?\Throwable $throwable = null): void
     {
         return;
     }

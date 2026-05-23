@@ -6,7 +6,7 @@ interface Adapter
 {
     public function setApplicationName(string $applicationName): bool;
 
-    public function noticeError(string $message, \Throwable $throwable = null): void;
+    public function noticeError(string $message, ?\Throwable $throwable = null): void;
 
     public function nameTransaction(string $name): bool;
 
