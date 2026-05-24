@@ -23,7 +23,7 @@ final class LogAdapter implements Adapter
         return true;
     }
 
-    public function noticeError(string $message, \Throwable $throwable = null): void
+    public function noticeError(string $message, ?\Throwable $throwable = null): void
     {
         $this->logger->error('NewRelic call to noticeError', [
             '$message'   => $message,
